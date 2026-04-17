@@ -1,0 +1,10 @@
+node_modules
+# Next.js build output
+.next/
+
+# Dependencies
+node_modules/
+
+# Environment variables (Crucial for your Supabase keys!)
+.env
+.env.local

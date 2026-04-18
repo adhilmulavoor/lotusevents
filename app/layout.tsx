@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   },
 };
 
+import InstallPWA from '@/components/InstallPWA';
+
 export default function RootLayout({
   children,
 }: {
@@ -25,7 +27,10 @@ export default function RootLayout({
         <link rel="icon" href="/icon-512.png" />
         <link rel="apple-touch-icon" href="/icon-512.png" />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <InstallPWA />
+      </body>
     </html>
   );
 }

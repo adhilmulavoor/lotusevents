@@ -20,8 +20,8 @@ const HERO_IMAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/assets/heroimag
 
 const stats = [
   { value: '500+', label: 'Events Executed', icon: CalendarDays, color: 'text-emerald-400' },
-  { value: '12K+', label: 'Guests Served', icon: Users, color: 'text-red-400' },
-  { value: '8+', label: 'Years of Excellence', icon: Award, color: 'text-amber-400' },
+  { value: '200K+', label: 'Guests Served', icon: Users, color: 'text-red-400' },
+  { value: '26+', label: 'Years of Excellence', icon: Award, color: 'text-amber-400' },
   { value: '98%', label: 'Client Satisfaction', icon: Star, color: 'text-purple-400' },
 ];
 

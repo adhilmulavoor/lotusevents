@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   themeColor: '#050505',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icon-512.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

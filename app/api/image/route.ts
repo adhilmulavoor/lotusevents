@@ -5,12 +5,12 @@ import path from 'path';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name');
-  
+
   if (!name) return new NextResponse('Missing name', { status: 400 });
-  
-  const basePath = 'C:\\Users\\Adhil M\\.gemini\\antigravity\\brain\\b23a43ee-6392-4423-8215-ee0d02dc08d4';
+
+  const basePath = 'C:\\Users\\Adhil M\\.lib/supabase.ts\\antigravity\\brain\\b23a43ee-6392-4423-8215-ee0d02dc08d4';
   const filePath = path.join(basePath, name);
-  
+
   try {
     const fileBuffer = fs.readFileSync(filePath);
     return new NextResponse(fileBuffer, {

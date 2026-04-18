@@ -15,13 +15,21 @@ function SubmitBtn() {
   );
 }
 
-type Event = { id: string; event_name: string; date: string; location: string | null; status: string; controllers?: { users?: { name: string } } | null };
+type Event = { 
+  id: string; 
+  event_name: string; 
+  date: string; 
+  location: string | null; 
+  status: string; 
+  event_controllers?: { controllers?: { users?: { name: string } } }[] 
+};
 type Controller = { id: string; name: string; controllers: { id: string }[] | null };
 
 export default function EventsClient({ initialEvents, controllers }: { initialEvents: Event[]; controllers: Controller[] }) {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [selectedControllers, setSelectedControllers] = useState<string[]>([]);
   const [state, formAction] = useActionState(createEvent, null);
 
   useEffect(() => {
@@ -32,6 +40,12 @@ export default function EventsClient({ initialEvents, controllers }: { initialEv
     e.event_name.toLowerCase().includes(search.toLowerCase()) ||
     (e.location ?? '').toLowerCase().includes(search.toLowerCase())
   );
+
+  const toggleController = (id: string) => {
+    setSelectedControllers(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this event and all associated data?')) return;
@@ -55,7 +69,7 @@ export default function EventsClient({ initialEvents, controllers }: { initialEv
           </h1>
           <p className="text-gray-400 mt-2 text-sm">Create events, assign controllers, and track progress.</p>
         </div>
-        <button onClick={() => setShowModal(true)}
+        <button onClick={() => { setSelectedControllers([]); setShowModal(true); }}
           className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold py-2.5 px-5 rounded-xl hover:opacity-90 transition-opacity">
           <Plus size={18} /><span>New Event</span>
         </button>
@@ -81,49 +95,64 @@ export default function EventsClient({ initialEvents, controllers }: { initialEv
                   <th className="p-4 font-medium">Event Name</th>
                   <th className="p-4 font-medium">Date</th>
                   <th className="p-4 font-medium">Location</th>
-                  <th className="p-4 font-medium">Controller</th>
+                  <th className="p-4 font-medium">Controllers</th>
                   <th className="p-4 font-medium">Status</th>
                   <th className="p-4 font-medium text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm">
-                {filtered.map((ev) => (
-                  <tr key={ev.id} className="hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-medium">{ev.event_name}</td>
-                    <td className="p-4 text-gray-400">{new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                    <td className="p-4 text-gray-400">{ev.location ?? '—'}</td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-lg border text-xs ${ev.controllers?.users?.name ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                        {ev.controllers?.users?.name ?? 'Unassigned'}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className={`text-xs font-bold px-3 py-1 rounded-lg border capitalize ${statusStyle[ev.status] ?? 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
-                        {ev.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => handleDelete(ev.id)} className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors">
-                        <Trash2 size={15} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((ev) => {
+                  const ctrlNames = ev.event_controllers
+                    ?.map(ec => ec.controllers?.users?.name)
+                    .filter(Boolean) || [];
+
+                  return (
+                    <tr key={ev.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-4 font-medium">{ev.event_name}</td>
+                      <td className="p-4 text-gray-400">{new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td className="p-4 text-gray-400">{ev.location ?? '—'}</td>
+                      <td className="p-4">
+                        <div className="flex flex-wrap gap-1">
+                          {ctrlNames.length > 0 ? (
+                            ctrlNames.map((name, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-white/5 border border-white/10 text-[10px] rounded text-gray-300">
+                                {name}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="bg-red-500/10 text-red-400 border-red-500/20 px-2 py-0.5 rounded text-[10px] border">Unassigned</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`text-xs font-bold px-3 py-1 rounded-lg border capitalize ${statusStyle[ev.status] ?? 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
+                          {ev.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button onClick={() => handleDelete(ev.id)} className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors">
+                          <Trash2 size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* CREATE EVENT MODAL */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
           <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl p-8 shadow-2xl relative">
             <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 text-gray-400 hover:text-white"><X size={20} /></button>
             <h2 className="text-2xl font-black mb-1">Create Event</h2>
-            <p className="text-gray-500 text-sm mb-7">Add a new event to the system.</p>
+            <p className="text-gray-500 text-sm mb-7">Add a new event with multiple controllers.</p>
             {state?.error && <div className="mb-5 p-3 bg-red-500/15 border border-red-500/30 rounded-xl text-red-400 text-sm">{state.error}</div>}
             <form action={formAction} className="space-y-4">
+              <input type="hidden" name="controller_ids" value={JSON.stringify(selectedControllers)} />
+              
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                 <input type="text" name="event_name" required placeholder="Event name *"
@@ -139,16 +168,34 @@ export default function EventsClient({ initialEvents, controllers }: { initialEv
                 <input type="text" name="location" placeholder="Location"
                   className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
               </div>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                <select name="controller_id"
-                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all appearance-none cursor-pointer">
-                  <option value="">— No controller assigned —</option>
-                  {controllers.map(c => (
-                    <option key={c.id} value={c.controllers?.[0]?.id ?? ''}>{c.name}</option>
-                  ))}
-                </select>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Assign Controllers</label>
+                <div className="max-h-32 overflow-y-auto bg-black/50 border border-white/10 rounded-xl p-2 custom-scrollbar">
+                  {controllers.length === 0 ? (
+                    <p className="p-2 text-xs text-gray-600">No controllers found.</p>
+                  ) : (
+                    controllers.map(c => {
+                      const cid = c.controllers?.[0]?.id;
+                      if (!cid) return null;
+                      const isSelected = selectedControllers.includes(cid);
+                      return (
+                        <div 
+                          key={cid} 
+                          onClick={() => toggleController(cid)}
+                          className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors mb-1 ${isSelected ? 'bg-emerald-500/10' : 'hover:bg-white/5'}`}
+                        >
+                          <span className={`text-sm ${isSelected ? 'text-emerald-400 font-bold' : 'text-gray-400'}`}>{c.name}</span>
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-white/20'}`}>
+                            {isSelected && <Plus size={10} className="text-white rotate-45" />}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
+
               <div className="relative">
                 <select name="status" defaultValue="planned"
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all appearance-none cursor-pointer">

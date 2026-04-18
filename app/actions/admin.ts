@@ -143,7 +143,11 @@ export async function getAllEvents() {
     .from('events')
     .select(`
       id, event_name, date, location, status,
-      controllers ( users ( name ) )
+      event_controllers (
+        controllers (
+          users ( name )
+        )
+      )
     `)
     .order('date', { ascending: false });
   if (error) throw new Error(error.message);
@@ -163,22 +167,35 @@ export async function createEvent(prevState: any, formData: FormData) {
   const event_name = formData.get('event_name') as string;
   const date = formData.get('date') as string;
   const location = (formData.get('location') as string) || null;
-  const controller_id = (formData.get('controller_id') as string) || null;
+  const controllerIdsJson = formData.get('controller_ids') as string;
+  const controller_ids = controllerIdsJson ? JSON.parse(controllerIdsJson) : [];
   const status = (formData.get('status') as string) || 'planned';
 
   if (!event_name || !date) {
     return { error: 'Event name and date are required.' };
   }
 
-  const { error } = await supabaseAdmin.from('events').insert({
-    event_name,
-    date: new Date(date).toISOString(),
-    location,
-    controller_id: controller_id || null,
-    status,
-  });
+  const { data: event, error } = await supabaseAdmin
+    .from('events')
+    .insert({
+      event_name,
+      date: new Date(date).toISOString(),
+      location,
+      status,
+    })
+    .select('id')
+    .single();
 
   if (error) return { error: error.message };
+
+  if (controller_ids.length > 0) {
+    const assignments = controller_ids.map((cid: string) => ({
+      event_id: event.id,
+      controller_id: cid,
+    }));
+    const { error: assignErr } = await supabaseAdmin.from('event_controllers').insert(assignments);
+    if (assignErr) console.error('Assignment error:', assignErr);
+  }
 
   revalidatePath('/admin/events');
   revalidatePath('/admin/dashboard');
@@ -327,12 +344,12 @@ export async function getControllerPerformance() {
     const user = ctrl.users;
     const controllerId = ctrl.id;
 
-    const { data: events } = await supabaseAdmin
-      .from('events')
-      .select('id')
+    const { data: assignments } = await supabaseAdmin
+      .from('event_controllers')
+      .select('event_id')
       .eq('controller_id', controllerId);
 
-    const eventIds = events?.map(e => e.id) || [];
+    const eventIds = assignments?.map(a => a.event_id) || [];
     const totalPrograms = eventIds.length;
 
     let totalWage = 0;
@@ -379,13 +396,18 @@ export async function getSingleControllerPerformance(controllerId: string) {
   if (ctrlErr || !ctrl) return { error: ctrlErr?.message || 'Controller not found', data: null };
 
   const user = ctrl.users as any;
+  const { data: assignments } = await supabaseAdmin
+    .from('event_controllers')
+    .select('event_id')
+    .eq('controller_id', controllerId);
+
+  const eventIds = assignments?.map(a => a.event_id) || [];
+
   const { data: events } = await supabaseAdmin
     .from('events')
     .select('id, event_name, date, location, status')
-    .eq('controller_id', controllerId)
+    .in('id', eventIds)
     .order('date', { ascending: false });
-
-  const eventIds = events?.map(e => e.id) || [];
   const totalPrograms = eventIds.length;
 
   let totalWage = 0;

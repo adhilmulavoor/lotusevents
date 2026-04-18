@@ -15,30 +15,33 @@ export async function getPendingEvents() {
     .eq('user_id', session.id)
     .single()
 
-  let controllerRecordId: string | null = null;
-  if (controllerRecord) {
-    controllerRecordId = controllerRecord.id;
+  if (!controllerRecord && session.role !== 'ADMIN') {
+    return { data: [], error: 'Controller profile not found.' }
   }
 
-  let eventsQuery = supabaseAdmin
+  const { data: assignments } = await supabaseAdmin
+    .from('event_controllers')
+    .select('event_id')
+    .eq('controller_id', controllerRecord?.id);
+
+  const eventIds = assignments?.map(a => a.event_id) || [];
+
+  if (eventIds.length === 0 && session.role !== 'ADMIN') {
+    return { data: [], error: null };
+  }
+
+  let query = supabaseAdmin
     .from('events')
-    .select('id, event_name, date, location, status, controller_id')
+    .select('id, event_name, date, location, status')
     .in('status', ['planned', 'ongoing'])
     .order('date', { ascending: true });
 
-  if (controllerRecordId) {
-    eventsQuery = eventsQuery.eq('controller_id', controllerRecordId);
-  } else if (session.role !== 'ADMIN') {
-    return { data: [], error: 'Controller profile not found. Please contact admin.' }
+  if (session.role !== 'ADMIN') {
+    query = query.in('id', eventIds);
   }
 
-  const { data: events, error } = await eventsQuery;
-
-  if (error) {
-    console.error('getPendingEvents error:', error);
-    return { data: [], error: error.message };
-  }
-
+  const { data: events, error } = await query;
+  if (error) return { data: [], error: error.message };
   return { data: events || [], error: null }
 }
 
@@ -53,30 +56,33 @@ export async function getCompletedEvents() {
     .eq('user_id', session.id)
     .single()
 
-  let controllerRecordId: string | null = null;
-  if (controllerRecord) {
-    controllerRecordId = controllerRecord.id;
+  if (!controllerRecord && session.role !== 'ADMIN') {
+    return { data: [], error: 'Controller profile not found.' }
   }
 
-  let eventsQuery = supabaseAdmin
+  const { data: assignments } = await supabaseAdmin
+    .from('event_controllers')
+    .select('event_id')
+    .eq('controller_id', controllerRecord?.id);
+
+  const eventIds = assignments?.map(a => a.event_id) || [];
+
+  if (eventIds.length === 0 && session.role !== 'ADMIN') {
+    return { data: [], error: null };
+  }
+
+  let query = supabaseAdmin
     .from('events')
-    .select('id, event_name, date, location, status, controller_id')
+    .select('id, event_name, date, location, status')
     .eq('status', 'completed')
     .order('date', { ascending: false });
 
-  if (controllerRecordId) {
-    eventsQuery = eventsQuery.eq('controller_id', controllerRecordId);
-  } else if (session.role !== 'ADMIN') {
-    return { data: [], error: 'Controller profile not found. Please contact admin.' }
+  if (session.role !== 'ADMIN') {
+    query = query.in('id', eventIds);
   }
 
-  const { data: events, error } = await eventsQuery;
-
-  if (error) {
-    console.error('getCompletedEvents error:', error);
-    return { data: [], error: error.message };
-  }
-
+  const { data: events, error } = await query;
+  if (error) return { data: [], error: error.message };
   return { data: events || [], error: null }
 }
 
@@ -327,18 +333,16 @@ export async function getTeamMembers() {
     .eq('user_id', session.id)
     .single()
 
-  console.log('[getTeamMembers] controllerRecord:', controllerRecord)
-
   if (!controllerRecord) {
     return { data: [], error: null }
   }
 
-  const { data: events } = await supabaseAdmin
-    .from('events')
-    .select('id')
+  const { data: assignments } = await supabaseAdmin
+    .from('event_controllers')
+    .select('event_id')
     .eq('controller_id', controllerRecord.id)
 
-  const eventIds = events?.map(e => e.id) || []
+  const eventIds = assignments?.map(a => a.event_id) || []
   console.log('[getTeamMembers] eventIds:', eventIds)
 
   if (eventIds.length === 0) {

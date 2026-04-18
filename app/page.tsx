@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import Image from 'next/image';
 import {
   ArrowRight, CalendarDays, Users, Banknote, Calculator,
   Instagram, Twitter, Linkedin, Sparkles, Play,
@@ -25,10 +26,10 @@ const stats = [
 ];
 
 const contactCards = [
-  { icon: Phone, label: 'Phone', value: '+91 98765 43210', sub: 'Mon–Sat, 9am–7pm', color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/20' },
-  { icon: Mail, label: 'Email', value: 'hello@lotusevents.in', sub: 'We reply within 24 hours', color: 'text-red-400', bg: 'bg-red-500/10', ring: 'ring-red-500/20' },
-  { icon: MapPin, label: 'Location', value: 'Kochi, Kerala', sub: 'South India Operations HQ', color: 'text-amber-400', bg: 'bg-amber-500/10', ring: 'ring-amber-500/20' },
-  { icon: Clock, label: 'Hours', value: 'Mon – Sat', sub: '9:00 AM – 7:00 PM IST', color: 'text-purple-400', bg: 'bg-purple-500/10', ring: 'ring-purple-500/20' },
+  { icon: Phone, label: 'Phone', value: '+91 97441 71606', sub: 'Mon–Sun, 9am–9pm', color: 'text-emerald-400', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/20' },
+  { icon: Instagram, label: 'Instagram', value: '@l_otus.events', sub: 'Follow our journey', color: 'text-red-400', bg: 'bg-red-500/10', ring: 'ring-red-500/20', href: 'https://www.instagram.com/l_otus.events/' },
+  { icon: MapPin, label: 'Location', value: 'Mulavoor, Ernakulam', sub: 'Kerala Operations HQ', color: 'text-amber-400', bg: 'bg-amber-500/10', ring: 'ring-amber-500/20' },
+  { icon: Clock, label: 'Hours', value: 'Mon – Sun', sub: '9:00 AM – 9:00 PM IST', color: 'text-purple-400', bg: 'bg-purple-500/10', ring: 'ring-purple-500/20' },
 ];
 
 export default function Home() {
@@ -55,7 +56,7 @@ export default function Home() {
             <Link href="#home" className="hover:text-white transition-colors">Home</Link>
             <Link href="#about" className="hover:text-white transition-colors">About</Link>
             <Link href="#gallery" className="hover:text-white transition-colors">Gallery</Link>
-            <Link href="#login" className="hover:text-white transition-colors">Portals</Link>
+            <Link href="#portals" className="hover:text-white transition-colors">Portals</Link>
             <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
           </div>
           <div className="flex items-center gap-4">
@@ -81,7 +82,7 @@ export default function Home() {
             <Link href="#home" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">Home</Link>
             <Link href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">About</Link>
             <Link href="#gallery" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">Gallery</Link>
-            <Link href="#login" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">Portals</Link>
+            <Link href="#portals" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">Portals</Link>
             <Link href="#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors touch-manipulation py-2">Contact</Link>
           </div>
         </div>
@@ -91,17 +92,20 @@ export default function Home() {
 
         {/* ─── HERO ──────────────────────────────────────────────── */}
         <section id="home" className="min-h-screen flex flex-col items-center justify-center relative px-6 w-full">
-          <div className="max-w-6xl w-full text-center space-y-10 relative pt-20">
+          <div className="max-w-6xl w-full text-center space-y-6 relative pt-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-medium tracking-[0.2em] uppercase mb-4 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-red-500" />
               Elevating Every Moment
             </div>
 
-            <div className="flex flex-col items-center justify-center w-full mb-8">
-              <img
+            <div className="flex flex-col items-center justify-center w-full mb-4">
+              <Image
                 src={HERO_IMAGE_URL}
                 alt="Lotus Typography"
-                className="w-full max-w-2xl md:max-w-4xl object-contain drop-shadow-2xl relative z-10"
+                width={800}
+                height={400}
+                priority
+                className="w-full max-w-2xl md:max-w-4xl h-auto object-contain drop-shadow-2xl relative z-10"
               />
               <h1 className={`text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.9] -mt-6 md:-mt-12 relative z-0 ${playfair.className}`}>
                 <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-300 to-gray-500 italic font-light drop-shadow-md">
@@ -114,8 +118,8 @@ export default function Home() {
               The premier ecosystem for catering and event management. Precision, scale, and luxury—bridging extraordinary vision with flawless execution.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-12">
-              <Link href="#login" className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full font-bold uppercase tracking-[0.15em] text-xs hover:from-red-500 hover:to-red-400 transition-all shadow-[0_0_40px_-10px_rgba(220,38,38,0.5)]">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+              <Link href="#portals" className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full font-bold uppercase tracking-[0.15em] text-xs hover:from-red-500 hover:to-red-400 transition-all shadow-[0_0_40px_-10px_rgba(220,38,38,0.5)]">
                 Access Portals
                 <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -229,7 +233,7 @@ export default function Home() {
         </section>
 
         {/* ─── SYSTEM PORTALS ─────────────────────────────────────── */}
-        <section id="login" className="py-32 px-6 flex flex-col items-center border-t border-white/5 relative bg-gradient-to-b from-[#050505] to-[#0a0a0a]">
+        <section id="portals" className="py-32 px-6 flex flex-col items-center border-t border-white/5 relative bg-gradient-to-b from-[#050505] to-[#0a0a0a]">
           <div className="max-w-7xl w-full">
             <div className="mb-20 flex flex-col items-center text-center gap-6">
               <h2 className={`text-5xl md:text-7xl font-bold ${playfair.className}`}>System Portals</h2>
@@ -310,18 +314,24 @@ export default function Home() {
 
             {/* Contact info cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-              {contactCards.map((c, i) => (
-                <div key={i} className="bg-white/[0.03] border border-white/10 rounded-3xl p-7 flex flex-col gap-4 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-500">
-                  <div className={`w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center ring-1 ${c.ring}`}>
-                    <c.icon className={`w-5 h-5 ${c.color}`} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-gray-500 mb-1">{c.label}</p>
-                    <p className="text-sm font-semibold text-white">{c.value}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{c.sub}</p>
-                  </div>
-                </div>
-              ))}
+              {contactCards.map((c, i) => {
+                const CardWrapper = c.href ? 'a' : 'div';
+                const extraProps = c.href ? { href: c.href, target: "_blank", rel: "noopener noreferrer" } : {};
+                
+                return (
+                  // @ts-ignore
+                  <CardWrapper key={i} {...extraProps} className={`bg-white/[0.03] border border-white/10 rounded-3xl p-7 flex flex-col gap-4 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-500 ${c.href ? 'cursor-pointer group/card' : ''}`}>
+                    <div className={`w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center ring-1 ${c.ring} group-hover/card:scale-110 transition-transform`}>
+                      <c.icon className={`w-5 h-5 ${c.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-gray-500 mb-1">{c.label}</p>
+                      <p className={`text-sm font-semibold text-white ${c.href ? 'group-hover/card:text-red-400 transition-colors' : ''}`}>{c.value}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{c.sub}</p>
+                    </div>
+                  </CardWrapper>
+                );
+              })}
             </div>
 
             {/* CTA row */}
@@ -336,14 +346,16 @@ export default function Home() {
               </div>
               <div className="flex-shrink-0 flex flex-col sm:flex-row gap-4">
                 <a
-                  href="mailto:hello@lotusevents.in"
+                  href="https://www.instagram.com/l_otus.events/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-full font-bold uppercase tracking-[0.15em] text-xs hover:from-emerald-500 hover:to-emerald-400 transition-all shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]"
                 >
-                  <Mail className="w-4 h-4" />
-                  Email Us
+                  <Instagram className="w-4 h-4" />
+                  Message Us
                 </a>
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+919744171606"
                   className="flex items-center gap-3 px-8 py-4 border border-white/20 text-white rounded-full font-bold uppercase tracking-[0.15em] text-xs hover:bg-white/5 transition-all"
                 >
                   <Phone className="w-4 h-4" />
@@ -367,7 +379,7 @@ export default function Home() {
                 Redefining the standards of event operations and luxury catering around the globe.
               </p>
               <div className="flex gap-4 pt-4">
-                <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-black transition-colors border border-white/10">
+                <a href="https://www.instagram.com/l_otus.events/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-black transition-colors border border-white/10">
                   <Instagram className="w-4 h-4" />
                 </a>
                 <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-black transition-colors border border-white/10">
@@ -385,7 +397,7 @@ export default function Home() {
                 <li><a href="#home" className="hover:text-emerald-400 transition-colors">Home</a></li>
                 <li><a href="#about" className="hover:text-emerald-400 transition-colors">About Us</a></li>
                 <li><a href="#gallery" className="hover:text-emerald-400 transition-colors">Gallery</a></li>
-                <li><a href="#login" className="hover:text-emerald-400 transition-colors">Portals</a></li>
+                <li><a href="#portals" className="hover:text-emerald-400 transition-colors">Portals</a></li>
                 <li><a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a></li>
               </ul>
             </div>

@@ -202,3 +202,29 @@ export async function deleteStockItem(id: string) {
   revalidatePath('/accountant/stock');
   return { success: true };
 }
+// ─── DATA FOR REPORTS ────────────────────────────────────────────────────────
+export async function getAllEventWorkersData() {
+  const { data, error } = await supabaseAdmin
+    .from('event_workers')
+    .select('*, events(id, event_name, date), workers(*, users(*))')
+    .order('id', { ascending: false });
+
+  if (error) {
+    console.error('getAllEventWorkersData error:', error);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getAllEventsWithControllers() {
+  const { data, error } = await supabaseAdmin
+    .from('events')
+    .select('*, event_controllers(controllers(users(name)))')
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('getAllEventsWithControllers error:', error);
+    return [];
+  }
+  return data ?? [];
+}

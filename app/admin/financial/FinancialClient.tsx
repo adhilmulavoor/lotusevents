@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 type FilterType = 'all' | 'income' | 'expense';
-type DateFilter = 'all_time' | 'this_week' | 'this_month' | 'custom';
+type DateFilter = 'all_time' | 'today' | 'this_week' | 'this_month' | 'this_year' | 'specific_date';
 
 interface Transaction {
   id: string;
@@ -44,6 +44,7 @@ function formatDate(dateStr: string) {
 export default function FinancialClient({ initialIncome, initialExpenses, events }: FinancialClientProps) {
   const [typeFilter, setTypeFilter] = useState<FilterType>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all_time');
+  const [specificDate, setSpecificDate] = useState<string>('');
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -77,24 +78,39 @@ export default function FinancialClient({ initialIncome, initialExpenses, events
   const filteredTransactions = useMemo(() => {
     const now = new Date();
     let fromDate: Date | null = null;
+    let toDate: Date | null = null;
 
-    if (dateFilter === 'this_week') {
+    if (dateFilter === 'today') {
+      fromDate = new Date();
+      fromDate.setHours(0, 0, 0, 0);
+      toDate = new Date();
+      toDate.setHours(23, 59, 59, 999);
+    } else if (dateFilter === 'this_week') {
       const day = now.getDay();
       const diff = now.getDate() - day + (day === 0 ? -6 : 1);
       fromDate = new Date(now.setDate(diff));
       fromDate.setHours(0, 0, 0, 0);
     } else if (dateFilter === 'this_month') {
       fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (dateFilter === 'this_year') {
+      fromDate = new Date(now.getFullYear(), 0, 1);
+    } else if (dateFilter === 'specific_date' && specificDate) {
+      fromDate = new Date(specificDate);
+      fromDate.setHours(0, 0, 0, 0);
+      toDate = new Date(specificDate);
+      toDate.setHours(23, 59, 59, 999);
     }
 
     return allTransactions.filter(t => {
+      const tDate = new Date(t.date);
       if (typeFilter !== 'all' && t.type !== typeFilter) return false;
-      if (fromDate && new Date(t.date) < fromDate) return false;
+      if (fromDate && tDate < fromDate) return false;
+      if (toDate && tDate > toDate) return false;
       if (eventFilter !== 'all' && t.eventName !== eventFilter) return false;
       if (searchQuery && !t.description.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       return true;
     });
-  }, [allTransactions, typeFilter, dateFilter, eventFilter, searchQuery]);
+  }, [allTransactions, typeFilter, dateFilter, specificDate, eventFilter, searchQuery]);
 
   const totals = useMemo(() => {
     const totalIncome = filteredTransactions
@@ -183,17 +199,30 @@ export default function FinancialClient({ initialIncome, initialExpenses, events
             </div>
 
             {/* Date Filter */}
-            <div>
+            <div className={dateFilter === 'specific_date' ? 'md:col-span-1' : 'md:col-span-1'}>
               <label className="text-[10px] text-gray-500 uppercase mb-2 block">Period</label>
-              <select
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-                className="w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="all_time">All Time</option>
-                <option value="this_week">This Week</option>
-                <option value="this_month">This Month</option>
-              </select>
+              <div className="flex gap-2">
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer outline-none"
+                >
+                  <option value="all_time" className="bg-[#0a0a0a] text-white">All Time</option>
+                  <option value="today" className="bg-[#0a0a0a] text-white">Today</option>
+                  <option value="this_week" className="bg-[#0a0a0a] text-white">This Week</option>
+                  <option value="this_month" className="bg-[#0a0a0a] text-white">This Month</option>
+                  <option value="this_year" className="bg-[#0a0a0a] text-white">This Year</option>
+                  <option value="specific_date" className="bg-[#0a0a0a] text-white">Specific Date</option>
+                </select>
+                {dateFilter === 'specific_date' && (
+                  <input
+                    type="date"
+                    value={specificDate}
+                    onChange={(e) => setSpecificDate(e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                )}
+              </div>
             </div>
 
             {/* Event Filter */}
